@@ -3,9 +3,9 @@ const {ethers} = require("hardhat");
 async function main() {
     const [deployer, player] = await ethers.getSigners();
 
-    const TOKEN_ADDRESS = "0x9A676e781A523b5d0C0e43731313A708CB607508";
-    const NFT_ADDRESS = "0x0B306BF915C4d645ff596e518fAf3F9669b97016";
-    const POND_ADDRESS = "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1";
+    const TOKEN_ADDRESS = "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E";
+    const NFT_ADDRESS = "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690";
+    const POND_ADDRESS = "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB";
 
 
     const token = await ethers.getContractAt("ChauncyFishingToken", TOKEN_ADDRESS);
@@ -44,6 +44,10 @@ async function main() {
     const castTx = await pond.connect(player).CastLine(1);
     const receipt = await castTx.wait();
 
+
+    
+
+
     // check logs
     const event = receipt.logs.find (log => {
         try {return pond.interface.parseLog(log).name == "Fished";} catch(e) {return false;}
@@ -51,7 +55,7 @@ async function main() {
 
     if (event){
         const decoded = pond.interface.parseLog(event);
-        console.log(`Successfully caught a ${decoded.args.dietGroup} fish. TokenID: ${decoded.args.tokenId}`);
+        console.log(`Successfully caught a ${decoded.args.dietGroup} fish, speices id: ${decoded.args.typeId}. TokenID: ${decoded.args.tokenId}`);
 
     }
 

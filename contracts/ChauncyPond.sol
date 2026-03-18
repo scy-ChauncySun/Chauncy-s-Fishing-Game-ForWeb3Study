@@ -4,6 +4,8 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+import "hardhat/console.sol"; //Debug
+
 interface IChauncyFishNFT {
     function mintFish(address to, uint256 _type) external returns(uint256);
 }
@@ -29,7 +31,7 @@ contract ChauncyPond is Ownable{
     uint256 priceMinnow = 15 * 10 ** 18; // Minnow lures 15 CFT, can be used 3 times.
 
     event BaitPurchased(address indexed player, BaitType baitType, uint256 amount);
-    event Fished(address indexed player, uint256 tokenId, BaitType usedBait, string dietGroup);
+    event Fished(address indexed player, uint256 tokenId, uint256 typeId,BaitType usedBait, string dietGroup);
 
     constructor(address _tokenAddr, address _nftAddr) Ownable(msg.sender){
         fishingToken = IERC20(_tokenAddr);
@@ -108,19 +110,19 @@ contract ChauncyPond is Ownable{
          */
         uint256 fishType;
         string memory group;
-
+        uint256 pool;
         if(_chosenBait == BaitType.CORN || _chosenBait == BaitType.PEA){
             // There are 12 species of herbivorous and omnivorous fish.
-            uint256 pool = rand % 12;
+            pool = rand % 12;
             fishType = pool <= 9 ? pool : (pool + 2); // 0-9 for herbivorous, 12-13 for omnivorous
             group = "Herbivorous/Omnivorous";
         }else if(_chosenBait == BaitType.MINNOW){
             fishType = rand % 4 + 10; 
             group = "Carnivore/Omnivore";
-        }
-
+        }   
+        
         uint256 tokenId = fishNFT.mintFish(msg.sender, fishType);
-        emit Fished(msg.sender, tokenId, _chosenBait, group);
+        emit Fished(msg.sender, tokenId, fishType, _chosenBait, group);
 
     }
 
