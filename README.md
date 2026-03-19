@@ -25,3 +25,19 @@ A decentralized fishing simulation game powered by Solidity. Players can exchang
 
 
 - **[Git] Version Control**: Initialized Git repository and configured a comprehensive .gitignore to protect sensitive .env files and exclude heavy node_modules and build artifacts.
+
+
+### 2026-03-19
+- **[Develop] Frontend UI development**: Designed and implemented the front-end components of a portion of the program.
+
+- **Asset Integration**: Successfully imported and mapped all 14 fish species' sprites from assets/fishes.
+
+
+- **Visual Effects**:  Added a "silhouette" effect (using CSS filters) for uncollected fish to enhance the exploration and collection experience.
+
+
+- **Smart Contract & Frontend Integration**:  * Implemented getFullCollection in the NFT contract for efficient batch querying of player holdings.
+
+Fixed a critical "revert" bug during the CastLine process by optimizing Gas limits and internal function calls.
+
+Resolved an issue where fish types were repetitive due to local block timestamp limitations by introducing a nonce to the PRNG logic.
