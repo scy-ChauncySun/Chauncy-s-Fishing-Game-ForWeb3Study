@@ -20,6 +20,8 @@ contract ChauncyFishNFT is ERC721, Ownable {
     // define to store the mapping between ID and fish species for each single NFT.
     mapping(uint256 => uint256) idToSpecies;
 
+    mapping(address => mapping(uint256 => uint256)) public fishTypeBalance;
+
     // Function for setting BaseURI
     function setBaseURI(string memory _newBaseURI) external onlyOwner {
         _baseTokenURI = _newBaseURI;
@@ -40,7 +42,10 @@ contract ChauncyFishNFT is ERC721, Ownable {
         _safeMint(to, tokenId);
         idToSpecies[tokenId] = _type;
 
-        emit FishMinted(msg.sender, tokenId, _type);
+        // Records the total number of this type of fish held by the user.
+        fishTypeBalance[to][_type] += 1;
+
+        emit FishMinted(to, tokenId, _type);
         return tokenId;
     }
 
@@ -56,4 +61,13 @@ contract ChauncyFishNFT is ERC721, Ownable {
         return string(abi.encodePacked(_baseURI(), idToSpecies[tokenId].toString(), ".json"));
     }
 
+
+    function getFullCollection(address _owner) external view returns (uint256[] memory) {
+        uint256[] memory balances = new uint256[](14); // 14 types of fish in total.
+        for (uint256 i = 0; i < 14; i++) {
+            balances[i] = fishTypeBalance[_owner][i];
+        }
+        return balances;
+    }
+    
 }

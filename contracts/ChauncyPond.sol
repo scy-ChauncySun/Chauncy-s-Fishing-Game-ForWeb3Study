@@ -136,4 +136,14 @@ contract ChauncyPond is Ownable{
         return userBag[_userAddr].minnowArray.length;
     }
 
+    function getCurrentMinnowState(address _userAddr) external view returns(uint8) {
+        if(userBag[_userAddr].minnowArray.length == 0){
+            return 0; // No minnow
+        } else {    
+        return userBag[_userAddr].minnowArray[userBag[_userAddr].minnowArray.length - 1];
+        }
+
+    }
+
+    
 }
