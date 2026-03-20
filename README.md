@@ -41,3 +41,13 @@ A decentralized fishing simulation game powered by Solidity. Players can exchang
 Fixed a critical "revert" bug during the CastLine process by optimizing Gas limits and internal function calls.
 
 Resolved an issue where fish types were repetitive due to local block timestamp limitations by introducing a nonce to the PRNG logic.
+
+
+### 2026-03-20
+- **[Develop] Frontend UI development**: Successfully integrated with the backend for the fish-selling feature.
+
+- **backend development**: New features have been added: 
+    1. Catch probabilities and sale prices have been established for fish species of varying rarity levels. 
+    2. The contract owner now injects initial capital into the contract during deployment. 
+    3. Users can now sell their FishNFTs in exchange for CFT, and subsequently withdraw their CFT holdings as ETH. 
+    4. The codebase now supports the contract owner withdrawing ETH from the contract account.
