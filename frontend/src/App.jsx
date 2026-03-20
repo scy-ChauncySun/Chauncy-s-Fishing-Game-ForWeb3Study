@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 
 
 0x5FbDB2315678afecb367f032d93F642f64180aa3
-const TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const TOKEN_ADDRESS = "0x7bc06c482DEAd17c0e297aFbC32f6e63d3846650";
 
 const TOKEN_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
@@ -12,21 +12,24 @@ const TOKEN_ABI = [
 ];
 
 
+const NFT_ADDRESS = "0xc351628EB244ec633d5f21fBD6621e1a683B1181";
+const NFT_ABI = [
+  "function getFullCollection(address _owner) external view returns (uint256[] memory)",
+  "function approve(address to, uint256 tokenId) external",
+  "function getFishType(uint256 tokenId) external view returns (uint256)",
+  "function walletOfOwner(address _owner) public view returns (uint256[] memory)"
+];
 
-const POND_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+const POND_ADDRESS = "0xFD471836031dc5108809D173A067e8486B9047A3";
 const POND_ABI = [
   "function buyBait(uint8 _type, uint256 _amount) external",
   "function CastLine(uint8 _chosenBait) external",
   "function userBag(address) view returns (uint256 cornCount, uint256 peaCount)",
   "function getMinnowCount(address _userAddr) view returns (uint256)",
   "function getCurrentMinnowState(address _userAddr) external view returns(uint8)",
+  "function fishPrices(uint256) view returns (uint256)", 
+  "function sellFish(uint256 _tokenId) external",
   "event Fished(address indexed player, uint256 tokenId, uint256 typeId, uint8 usedBait, string dietGroup)"
-];
-
-
-const NFT_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-const NFT_ABI = [
-  "function getFullCollection(address _owner) external view returns (uint256[] memory)"
 ];
 
 const FISH_NAMES = ["Crucian Carp", "Gibel Carp", "Common Carp", "F1", "Mirror Carp",
@@ -179,20 +182,61 @@ function App() {
     setLoading(false);
   };
 
+
+  const handleSellFish = async (tokenId) => {
+    setLoading(true);
+    setStatus(`Preparing to sell Fish #${tokenId}...`);
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      
+      const nft = new ethers.Contract(NFT_ADDRESS, NFT_ABI, signer);
+      const pond = new ethers.Contract(POND_ADDRESS, POND_ABI, signer);
+
+      
+      setStatus("Step 1/2: Authorizing Pond to take NFT...");
+      const appTx = await nft.approve(POND_ADDRESS, tokenId);
+      await appTx.wait();
+
+      
+      setStatus("Step 2/2: Selling to Fish Market...");
+      const sellTx = await pond.sellFish(tokenId);
+      await sellTx.wait();
+
+      setStatus("Fish sold successfully! CFT received.");
+      
+      
+      await refreshData();       
+      await fetchCollections();  
+    } catch (err) {
+      console.error(err);
+      setStatus("Sell Failed: " + (err.reason || "Check allowance or ownership"));
+    }
+    setLoading(false);
+  };
+
+
   const fetchCollections = async () => {
     if (!account) return;
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const nftContract = new ethers.Contract(NFT_ADDRESS, NFT_ABI, provider);
-    // record the count of each fish type in user's collection for display
-    const balances = await nftContract.getFullCollection(account);
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const nftContract = new ethers.Contract(NFT_ADDRESS, NFT_ABI, provider);
+      
+     
+      const balances = await nftContract.getFullCollection(account);
+      
+      
+      let newCollections = {};
+      balances.forEach((count, index) => {
+        newCollections[index] = Number(count);
+      });
 
-    let collections = {};
-    balances.forEach((count, index) => {
-      collections[index] = Number(count);
-    });
-
-    setFishCollections(collections);
-  }
+      console.log("Updated Collections:", newCollections); // 调试用
+      setFishCollections(newCollections); 
+    } catch (err) {
+      console.error("Fetch collection failed:", err);
+    }
+  };
 
 
 
@@ -308,17 +352,11 @@ function App() {
       {showCollection && (
         <div style={collectionOverlayStyle}>
           <div style={collectionContainerStyle}>
-            
-            {/* title and close button */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <h2 style={{ margin: 0 }}>🐟 Fish Encyclopedia</h2>
+              <h2 style={{ margin: 0 }}>🐟 Fish Encyclopedia & Market</h2>
               <button onClick={() => setShowCollection(false)} style={closeBtnStyle}>X</button>
             </div>
 
-            {/* statistics */}
-            <p>Collected: {Object.values(fishCollections).filter(c => c > 0).length} / {FISH_NAMES.length}</p>
-
-            {/* fish collection grid */}
             <div style={gridStyle}>
               {FISH_NAMES.map((name, index) => {
                 const count = fishCollections[index] || 0;
@@ -327,23 +365,55 @@ function App() {
                 return (
                   <div key={index} style={fishCardStyle}>
                     <img 
-                      
                       src={new URL(`./assets/fishes/${index}.png`, import.meta.url).href}
                       alt={name}
                       style={{
                         width: '80px',
                         height: '80px',
                         objectFit: 'contain',
-                        // fishes not yet collected blur the image.
                         filter: isOwned ? 'none' : 'brightness(0) blur(4px)',
                         opacity: isOwned ? 1 : 0.4
                       }}
+                      onError={(e) => { e.target.src = 'https://via.placeholder.com/80?text=Fish'; }}
                     />
-                    <div style={{ fontSize: '11px', marginTop: '8px', color: isOwned ? '#2c3e50' : '#bdc3c7' }}>
+                    
+                    <div style={{ fontSize: '11px', marginTop: '8px', color: isOwned ? '#2c3e50' : '#bdc3c7', fontWeight: 'bold' }}>
                       {isOwned ? name : "???"}
                     </div>
+
                     {isOwned && (
-                      <div style={badgeStyle}>x{count}</div>
+                      <>
+                        <div style={badgeStyle}>x{count}</div>
+                        <button 
+                          onClick={async () => {
+                            
+                            // Automatically retrieve the first ID of this type for sale.
+                            const provider = new ethers.BrowserProvider(window.ethereum);
+                            const nftContract = new ethers.Contract(NFT_ADDRESS, NFT_ABI, provider);
+                            const allIds = await nftContract.walletOfOwner(account);
+                            
+                            // Find the first ID belonging to the current fish species.
+                            let targetId = null;
+                            for(let id of allIds) {
+                              const type = await nftContract.getFishType(id);
+                              if(Number(type) === index) {
+                                targetId = id;
+                                break;
+                              }
+                            }
+
+                            if(targetId !== null) {
+                              handleSellFish(targetId);
+                            } else {
+                              alert("Could not find a valid ID for this fish.");
+                            }
+                          }}
+                          style={sellBtnStyle}
+                          disabled={loading}
+                        >
+                          {loading ? "..." : "Sell (1)"}
+                        </button>
+                      </>
                     )}
                   </div>
                 );
@@ -351,7 +421,7 @@ function App() {
             </div>
           </div>
         </div>
-      )}
+)}
 
     </div>
 
@@ -390,7 +460,7 @@ const collectionOverlayStyle = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  zIndex: 1500, // 确保在普通 UI 之上
+  zIndex: 1500, 
 };
 
 const collectionContainerStyle = {
@@ -400,7 +470,7 @@ const collectionContainerStyle = {
   borderRadius: '20px',
   padding: '25px',
   maxHeight: '80vh',
-  overflowY: 'auto', // 内容多了可以滚动
+  overflowY: 'auto', 
 };
 
 const gridStyle = {

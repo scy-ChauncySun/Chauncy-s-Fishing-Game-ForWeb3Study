@@ -15,7 +15,7 @@ contract ChauncyFishingToken is ERC20,Ownable {
     constructor() ERC20("ChauncyFishingToken","CFT") Ownable(msg.sender){}
 
     function buyTokens() public payable {
-        require(msg.value >= 0, "Send ETH to buy CFT.");
+        require(msg.value > 0, "Send ETH to buy CFT.");
 
         uint256 amountToMint = msg.value * EXCHANGE_RATE;
 
@@ -44,10 +44,13 @@ contract ChauncyFishingToken is ERC20,Ownable {
      * @param _cftAmount CFT that the player is willing to offer.
      */
     function sellTokensForETH(uint256 _cftAmount) public {
+        require(_cftAmount > 0, "Amount must be > 0");
         require(balanceOf(msg.sender) >= _cftAmount, "You don't have enough CFT.");
 
         // Calculate the amount of ETH to return based on the exchange rate
         uint256 ethAmount = _cftAmount / EXCHANGE_RATE;
+        // Ensure that the amount of ETH to return is greater than 0 to prevent unnecessary transactions.
+        require(ethAmount > 0, "Amount too small: results in 0 ETH");
 
         // check if the contract has enough ETH to pay the player
         require(address(this).balance >= ethAmount, "Contract doesn't have enough ETH. Please try later.");

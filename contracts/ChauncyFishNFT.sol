@@ -5,7 +5,9 @@ import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
-contract ChauncyFishNFT is ERC721, Ownable {
+import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+
+contract ChauncyFishNFT is ERC721, ERC721Enumerable, Ownable {
     using Strings for uint256;
     uint256 private _nextTokenId;
     string private _baseTokenURI = "ipfs://bafybeifjhyvf24sraznr5ijnq44aronpalaufp46dbul3hrz7whe5goi6e/";
@@ -20,7 +22,7 @@ contract ChauncyFishNFT is ERC721, Ownable {
     // define to store the mapping between ID and fish species for each single NFT.
     mapping(uint256 => uint256) idToSpecies;
 
-    mapping(address => mapping(uint256 => uint256)) public fishTypeBalance;
+    
 
     // Function for setting BaseURI
     function setBaseURI(string memory _newBaseURI) external onlyOwner {
@@ -42,8 +44,7 @@ contract ChauncyFishNFT is ERC721, Ownable {
         _safeMint(to, tokenId);
         idToSpecies[tokenId] = _type;
 
-        // Records the total number of this type of fish held by the user.
-        fishTypeBalance[to][_type] += 1;
+       
 
         emit FishMinted(to, tokenId, _type);
         return tokenId;
@@ -63,18 +64,65 @@ contract ChauncyFishNFT is ERC721, Ownable {
 
 
     function getFullCollection(address _owner) external view returns (uint256[] memory) {
-        uint256[] memory balances = new uint256[](14); // 14 types of fish in total.
-        for (uint256 i = 0; i < 14; i++) {
-            balances[i] = fishTypeBalance[_owner][i];
+        uint256[] memory counts = new uint256[](14);        
+        uint256 balance = balanceOf(_owner);
+        
+
+        for (uint256 i = 0; i < balance; i++) {
+
+            uint256 tokenId = tokenOfOwnerByIndex(_owner, i);
+        
+            uint256 fType = idToSpecies[tokenId];
+                        
+            if (fType < 14) {
+                counts[fType]++;
+            }
         }
-        return balances;
+        
+        return counts;
     }
 
 
     // A function to get the fish type of a specific token ID, which can be used by the frontend to display the correct image and metadata.
     function getFishType(uint256 tokenId) external view returns (uint256) {
-        _requireOwned(tokenId); // ensure that the caller is the owner of the token
+        _requireOwned(tokenId); 
         return idToSpecies[tokenId];
     }
     
+    function walletOfOwner(address _owner) public view returns (uint256[] memory) {
+        uint256 ownerTokenCount = balanceOf(_owner);
+        uint256[] memory tokenIds = new uint256[](ownerTokenCount);
+        for (uint256 i = 0; i < ownerTokenCount; i++) {
+            // get token ID by index and store in the array
+            tokenIds[i] = tokenOfOwnerByIndex(_owner, i);
+        }
+        return tokenIds;
+    }
+
+
+    function _update(address to, uint256 tokenId, address auth)
+        internal
+        override(ERC721, ERC721Enumerable)
+        returns (address)
+    {
+        return super._update(to, tokenId, auth);
+    }
+
+    function _increaseBalance(address account, uint128 value)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        super._increaseBalance(account, value);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+
 }
