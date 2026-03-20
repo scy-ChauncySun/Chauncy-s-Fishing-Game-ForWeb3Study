@@ -3,11 +3,15 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "hardhat/console.sol"; //Debug
 
 interface IChauncyFishNFT {
     function mintFish(address to, uint256 _type) external returns(uint256);
+    function getFishType(uint256 tokenId) external view returns (uint256);
+
+    function ownerOf(uint256 tokenId) external view returns (address);
+    function transferFrom(address from, address to, uint256 tokenId) external;
 }
 
 contract ChauncyPond is Ownable{
@@ -26,6 +30,9 @@ contract ChauncyPond is Ownable{
     // Mapping to track each user's bait inventory
     mapping (address => BaitInventory) public userBag;
 
+    // a mapping to store the price of each type of fish.
+    mapping(uint256 => uint256) public fishPrices;
+
     // Define prices for each bait type 
     uint256 priceNormal = 5 * 10 ** 18; // Normal baits 5 CFT, disappears after one use
     uint256 priceMinnow = 15 * 10 ** 18; // Minnow lures 15 CFT, can be used 3 times.
@@ -33,6 +40,8 @@ contract ChauncyPond is Ownable{
     event BaitPurchased(address indexed player, BaitType baitType, uint256 amount);
     event Fished(address indexed player, uint256 tokenId, uint256 typeId,BaitType usedBait, string dietGroup);
 
+
+    event FishSold(address indexed player, uint256 tokenId, uint256 typeId, uint256 payout);
     // A nonce for randomness, which can be used to ensure different random numbers for each fishing attempt.
     uint256 private _nonce;
 
@@ -42,6 +51,10 @@ contract ChauncyPond is Ownable{
     }
 
     
+    function setFishPrice(uint256 _type, uint256 _price) external onlyOwner {
+        fishPrices[_type] = _price;
+    }
+
 
     function buyBait(BaitType _type, uint256 _amount) external{
         require(_amount > 0, "Please enter the quantity you want to purchase.");
@@ -129,7 +142,7 @@ contract ChauncyPond is Ownable{
          */
         uint256 fishType;
         string memory group;
-        uint256 pool;
+        // uint256 pool;
         uint256 chance = rand % 100;
 
         
@@ -168,6 +181,30 @@ contract ChauncyPond is Ownable{
 
     }
 
+
+    /**
+     * Players sell their fish catch NFTs in exchange for CFT tokens.
+     */
+    function sellFish(uint256 _tokenId) external {
+        require(
+            fishNFT.ownerOf(_tokenId) == msg.sender,
+            "You don't own this fish."
+        );
+
+        uint256 fType = fishNFT.getFishType(_tokenId);
+
+        uint256 payout = fishPrices[fType];
+        require(payout > 0, "This fish has no market value.");
+
+        require(fishingToken.balanceOf(address(this)) >= payout, "Pond doesn't have enough CFT. Please try later.");
+
+        IERC721(address(fishNFT)).transferFrom(msg.sender, address(this), _tokenId);
+        require(fishingToken.transfer(msg.sender, payout), "CFT payout failed.");
+
+        emit FishSold(msg.sender, _tokenId, fType, payout);
+    }
+
+
     function withDrawTokens() external onlyOwner() {
         uint256 _balances = fishingToken.balanceOf(address(this));
         fishingToken.transfer(owner(), _balances);
@@ -186,6 +223,9 @@ contract ChauncyPond is Ownable{
         }
 
     }
+
+
+    
 
     
 }

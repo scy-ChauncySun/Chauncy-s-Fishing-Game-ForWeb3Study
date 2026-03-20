@@ -69,5 +69,12 @@ contract ChauncyFishNFT is ERC721, Ownable {
         }
         return balances;
     }
+
+
+    // A function to get the fish type of a specific token ID, which can be used by the frontend to display the correct image and metadata.
+    function getFishType(uint256 tokenId) external view returns (uint256) {
+        _requireOwned(tokenId); // ensure that the caller is the owner of the token
+        return idToSpecies[tokenId];
+    }
     
 }
