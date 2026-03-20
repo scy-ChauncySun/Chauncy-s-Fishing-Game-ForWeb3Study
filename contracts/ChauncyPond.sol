@@ -33,6 +33,9 @@ contract ChauncyPond is Ownable{
     event BaitPurchased(address indexed player, BaitType baitType, uint256 amount);
     event Fished(address indexed player, uint256 tokenId, uint256 typeId,BaitType usedBait, string dietGroup);
 
+    // A nonce for randomness, which can be used to ensure different random numbers for each fishing attempt.
+    uint256 private _nonce;
+
     constructor(address _tokenAddr, address _nftAddr) Ownable(msg.sender){
         fishingToken = IERC20(_tokenAddr);
         fishNFT = IChauncyFishNFT(_nftAddr);
@@ -99,25 +102,64 @@ contract ChauncyPond is Ownable{
         /**
          * generate a random number
          * I have a basic understanding of VRF, but due to the local deployment, I will use pseudo-randomness here.
+         * 
          */
-        uint256 rand = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender, block.prevrandao))); 
-
+        uint256 rand = uint256(
+            keccak256(
+                abi.encodePacked(
+                    block.timestamp, 
+                    msg.sender, 
+                    block.prevrandao,
+                    _nonce
+                    )
+                )
+            ); 
+        _nonce ++; // increase the nonce to ensure different random numbers for each fishing attempt.
+        
+        
         /**
          * Fish diet matching logic:
          * Normal baits (corn and pea) can catch herbivorous fish.
          * Minnow lures can catch carnivorous fish.
          * Omnivorous fish may eat both.
+         * The following is a directory of fish species (arranged by index 0-13).
+         *  "Crucian Carp", "Gibel Carp", "Common Carp", "F1", "Mirror Carp",
+        "Orenji Ogon", "Kohaku", "Hi Utsuri", "Mameshibori Goshiki", "Yotsushiro",
+        "Perch", "Pike", "Catfish", "Albino Catfish"
          */
         uint256 fishType;
         string memory group;
         uint256 pool;
+        uint256 chance = rand % 100;
+
+        
         if(_chosenBait == BaitType.CORN || _chosenBait == BaitType.PEA){
-            // There are 12 species of herbivorous and omnivorous fish.
-            pool = rand % 12;
-            fishType = pool <= 9 ? pool : (pool + 2); // 0-9 for herbivorous, 12-13 for omnivorous
+            /* There are 12 species of herbivorous and omnivorous fish.
+             * index 0-9 are herbivorous, index 12-13 are omnivorous.
+            */
+            if (chance < 50){
+                // The fish at Index 0 and 1 have a rarity of 1 star.
+                fishType = rand % 2;
+            }else if(chance < 75){
+                // The fish at Index 2-4 have a rarity of 2 stars.
+                fishType = rand % 3 + 2;
+            }else if (chance < 90){
+                // The fish at Index 12 have a rarity of 3 stars.
+                fishType = 12;
+            }else if (chance < 98){
+                // The fish at Index 5-6  have a rarity of 4 stars.
+                fishType = rand % 2 + 5;
+            }else{
+                // The fish at Index 7,8,9,13 have a rarity of 5 stars.
+                fishType = rand % 4 + 7;
+                if (fishType == 10){fishType = 13;} // index 10 is perch, which is herbivorous, so it is replaced by the omnivorous catfish at index 13.
+            }
             group = "Herbivorous/Omnivorous";
-        }else if(_chosenBait == BaitType.MINNOW){
-            fishType = rand % 4 + 10; 
+        }else if(_chosenBait == BaitType.MINNOW){            
+            if (chance < 60) { fishType = 10; }
+            else if (chance < 85) { fishType = 11; }
+            else if (chance < 98) { fishType = 12; } 
+            else { fishType = 13;}
             group = "Carnivore/Omnivore";
         }   
         

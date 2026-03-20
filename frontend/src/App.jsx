@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 
-
-const TOKEN_ADDRESS = "0xFD471836031dc5108809D173A067e8486B9047A3";
+0x5FbDB2315678afecb367f032d93F642f64180aa3
+const TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 const TOKEN_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
@@ -13,7 +13,7 @@ const TOKEN_ABI = [
 
 
 
-const POND_ADDRESS = "0x1429859428C0aBc9C2C47C8Ee9FBaf82cFA0F20f";
+const POND_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 const POND_ABI = [
   "function buyBait(uint8 _type, uint256 _amount) external",
   "function CastLine(uint8 _chosenBait) external",
@@ -24,7 +24,7 @@ const POND_ABI = [
 ];
 
 
-const NFT_ADDRESS = "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc";
+const NFT_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 const NFT_ABI = [
   "function getFullCollection(address _owner) external view returns (uint256[] memory)"
 ];
