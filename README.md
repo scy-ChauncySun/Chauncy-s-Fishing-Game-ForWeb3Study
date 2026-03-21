@@ -51,3 +51,11 @@ Resolved an issue where fish types were repetitive due to local block timestamp 
     2. The contract owner now injects initial capital into the contract during deployment. 
     3. Users can now sell their FishNFTs in exchange for CFT, and subsequently withdraw their CFT holdings as ETH. 
     4. The codebase now supports the contract owner withdrawing ETH from the contract account.
+
+
+### 2026-03-21
+- **[Develop] Frontend UI development**: 
+    1. Implemented the functionality allowing the contract owner to withdraw ETH from the contract address.
+    2. Completed the frontend functionality allowing users to withdraw all of their CFT.
+
+    The development tasks are basically completed; final debugging will be conducted tomorrow.

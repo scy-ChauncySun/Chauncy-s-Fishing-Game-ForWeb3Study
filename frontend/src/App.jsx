@@ -2,17 +2,20 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 
-0x5FbDB2315678afecb367f032d93F642f64180aa3
-const TOKEN_ADDRESS = "0x7bc06c482DEAd17c0e297aFbC32f6e63d3846650";
+const TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 const TOKEN_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
   "function buyTokens() payable",
-  "function approve(address spender, uint256 amount) returns (bool)" // Crucial for buying bait
+  "function approve(address spender, uint256 amount) returns (bool)", // Crucial for buying bait
+  "function withDrawETH(uint256 _amount) public",
+  "function owner() view returns (address)",
+  "function sellTokensForETH(uint256 _cftAmount) public",
+  "function EXCHANGE_RATE() view returns (uint256)"
 ];
 
 
-const NFT_ADDRESS = "0xc351628EB244ec633d5f21fBD6621e1a683B1181";
+const NFT_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 const NFT_ABI = [
   "function getFullCollection(address _owner) external view returns (uint256[] memory)",
   "function approve(address to, uint256 tokenId) external",
@@ -20,7 +23,7 @@ const NFT_ABI = [
   "function walletOfOwner(address _owner) public view returns (uint256[] memory)"
 ];
 
-const POND_ADDRESS = "0xFD471836031dc5108809D173A067e8486B9047A3";
+const POND_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 const POND_ABI = [
   "function buyBait(uint8 _type, uint256 _amount) external",
   "function CastLine(uint8 _chosenBait) external",
@@ -44,6 +47,16 @@ function App() {
   const [selectedBait, setSelectedBait] = useState(1); // Default to CORN (Enum 1)
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
+  
+  const [buyAmount, setBuyAmount] = useState(10); 
+
+
+
+  const[showWithdrawHub, setShowWithdrawHub] = useState(false);
+  const [isOwner, setIsOwner] = useState(false); // Track if connected account is owner for finance section
+  const [contractEth, setContractEth] = useState("0");
+  const[withdrawAmount, setWithdrawAmount] = useState(""); // amount to input by the owner to withdraw.
+  const[sellCftAmount, setSellCftAmount] = useState(""); // amount to input by the user to sell CFT for ETH.
 
 
   const [showModal, setShowModal] = useState(false);
@@ -51,6 +64,9 @@ function App() {
 
   const [fishCollections, setFishCollections] = useState({}); // store the count of each fish type in user's collection
   const [showCollection, setShowCollection] = useState(false); // control the visibility of the collection section
+
+  
+
 
   // --- Wallet Connection ---
   const connectWallet = async () => {
@@ -60,21 +76,25 @@ function App() {
     }
   };
 
-  const buyCFT = async () => {
+  const buyCFT = async (amount) => {
+    if (!amount || amount <= 0) return;
     setLoading(true);
-    setStatus("Exchanging ETH for CFT...");
+    setStatus(`Exchanging ETH for ${amount} CFT...`);
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       // Use the Token Contract for buying tokens
       const tokenContract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, signer);
       
+      const ethValue = (amount / 1000).toString(); 
       // Send 0.01 ETH to buy tokens (adjust amount as needed)
-      const tx = await tokenContract.buyTokens({ value: ethers.parseEther("0.01") });
+      const tx = await tokenContract.buyTokens({
+         value: ethers.parseEther(ethValue) 
+      });
       setStatus("Transaction sent, waiting for confirmation...");
       await tx.wait();
       
-      setStatus("Successfully bought CFT!");
+      setStatus(`Successfully bought ${amount} CFT!`);
       refreshData(); // Refresh balance
     } catch (err) {
       console.error(err);
@@ -239,6 +259,64 @@ function App() {
   };
 
 
+  // check this player is owner or not, if owner then show the withdraw hub and finance data
+  const fetchFinanceData = async () =>{
+    if(!account)  return;
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const tokenContract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, provider);
+    
+    const ownerAddr = await tokenContract.owner();
+    setIsOwner(ownerAddr.toLowerCase() === account.toLowerCase());
+
+
+    // get contract's ETH balance
+    const ethBal = await provider.getBalance(TOKEN_ADDRESS);
+    setContractEth(ethers.formatEther(ethBal));
+  }
+
+  
+  const handleSellTokens = async() => {
+    if(!sellCftAmount || isNaN(sellCftAmount))  return;
+    setLoading(true);
+    setStatus("Exchanging CFT for ETH...");
+    try{
+      const provider =  new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const tokenContract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, signer);
+
+      const tx = await tokenContract.sellTokensForETH(ethers.parseEther(sellCftAmount));
+      await tx.wait();
+      setStatus("Exchange successful!");
+      refreshData();
+      fetchFinanceData();
+    }catch (err){
+      setStatus("Exchange failed: " + (err.reason || "Check balance or reserve"));
+    }
+    setLoading(false);
+  }
+  
+
+
+  const handleAdminWithdraw = async() => {
+    if(!withdrawAmount || isNaN(withdrawAmount)) return;
+    setLoading(true);
+    setStatus("Withdrawing contract profits...");
+    try{
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const tokenContract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, signer);
+
+      
+      const tx = await tokenContract.withDrawETH(ethers.parseEther(withdrawAmount));
+      await tx.wait();
+      setStatus("Withdrawal successful!");
+      fetchFinanceData();
+    }catch(err){
+      setStatus("Withdrawal failed: " + (err.reason || "Check reserve limit"));
+    }
+    setLoading(false);
+  }
+
 
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto', fontFamily: 'Arial' }}>
@@ -253,9 +331,37 @@ function App() {
             <p>Balance: <strong>{tokenBalance} CFT</strong></p>
             
           
-            <button onClick={buyCFT} disabled={loading} style={{backgroundColor: '#e1f5fe', color: '#01579b'}}>
-              Get 10 CFT (Cost 0.01 ETH)
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+              
+              <select 
+                value={buyAmount} 
+                onChange={(e) => setBuyAmount(Number(e.target.value))}
+                style={{ padding: '8px', borderRadius: '5px' }}
+              >
+                <option value="10">10 CFT (0.01 ETH)</option>
+                <option value="50">50 CFT (0.05 ETH)</option>
+                <option value="100">100 CFT (0.1 ETH)</option>
+                <option value="500">500 CFT (0.5 ETH)</option>
+              </select>
+
+              
+              <button 
+                onClick={() => buyCFT(buyAmount)} 
+                disabled={loading} 
+                style={{
+                  backgroundColor: '#e1f5fe', 
+                  color: '#01579b', 
+                  padding: '8px 15px',
+                  fontWeight: 'bold'
+                }}
+              >
+                {loading ? "Processing..." : `Buy ${buyAmount} CFT`}
+              </button>
+
+              <button onClick={() => { fetchFinanceData(); setShowWithdrawHub(true); }} style={{backgroundColor: '#f39c12', color: 'white'}}>
+                💰 Withdraw Hub
+              </button>
+            </div>
             
             <p style={{color: 'blue', fontWeight: 'bold'}}>{status}</p>
           </section>
@@ -421,7 +527,80 @@ function App() {
             </div>
           </div>
         </div>
-)}
+      )}
+
+      {showWithdrawHub && (
+        <div style={collectionOverlayStyle}>
+          <div style={{...collectionContainerStyle, maxWidth: '500px'}}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <h2 style={{ margin: 0 }}>💰 Finance & Exchange Hub</h2>
+              <button onClick={() => setShowWithdrawHub(false)} style={closeBtnStyle}>X</button>
+            </div>
+
+            {/* Transaction Status Message */}
+            <p style={{color: 'blue', fontWeight: 'bold'}}>{status}</p>
+
+            {/* PART 1: General Player Exchange (CFT -> ETH) - Visible to all users including Owner */}
+            <section style={{...sectionStyle, backgroundColor: '#f8f9fa'}}>
+              <h4>🎮 Redeem Earnings (CFT to ETH)</h4>
+              <p>Your Balance: <strong>{tokenBalance} CFT</strong></p>
+              <div style={{display: 'flex', gap: '10px'}}>
+                <input 
+                  type="number" 
+                  placeholder="Enter CFT amount" 
+                  value={sellCftAmount}
+                  onChange={(e) => setSellCftAmount(e.target.value)}
+                  style={{flex: 1, padding: '8px', border: '1px solid #ddd', borderRadius: '4px'}}
+                />
+                <button 
+                  onClick={handleSellTokens} 
+                  disabled={loading || !sellCftAmount} 
+                  style={{backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', padding: '0 15px', cursor: 'pointer'}}
+                >
+                  Exchange
+                </button>
+              </div>
+              <small style={{color: '#7f8c8d'}}>Current Rate: 1000 CFT = 1 ETH</small>
+            </section>
+
+            {/* PART 2: Admin Profit Withdrawal - Only visible to the Contract Owner */}
+            {isOwner && (
+              <section style={{...sectionStyle, borderColor: '#e74c3c', backgroundColor: '#fff5f5', marginTop: '20px'}}>
+                <h4 style={{color: '#c0392b'}}>🛡️ Admin Treasury (Owner Only)</h4>
+                <p>Total Contract Vault: <strong>{contractEth} ETH</strong></p>
+                <p style={{fontSize: '12px', color: '#e67e22'}}>
+                  ⚠️ 1 ETH reserve required for players. Max withdrawable: {Math.max(0, parseFloat(contractEth) - 1).toFixed(4)} ETH
+                </p>
+                <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
+                  <input 
+                    type="number" 
+                    placeholder="Enter ETH amount" 
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    style={{flex: 1, padding: '8px', border: '1px solid #c0392b', borderRadius: '4px'}}
+                  />
+                  <button 
+                    onClick={handleAdminWithdraw} 
+                    disabled={loading || !withdrawAmount} 
+                    style={{backgroundColor: '#c0392b', color: 'white', border: 'none', borderRadius: '5px', padding: '0 15px', cursor: 'pointer'}}
+                  >
+                    Withdraw Profit
+                  </button>
+                </div>
+              </section>
+            )}
+            
+            <div style={{textAlign: 'center', marginTop: '20px'}}>
+              <button 
+                onClick={() => setShowWithdrawHub(false)} 
+                style={{padding: '10px 20px', cursor: 'pointer', borderRadius: '5px', border: '1px solid #ccc'}}
+              >
+                Back to Game
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
 
