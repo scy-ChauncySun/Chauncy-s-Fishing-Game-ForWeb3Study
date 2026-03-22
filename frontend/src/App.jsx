@@ -71,8 +71,17 @@ function App() {
   // --- Wallet Connection ---
   const connectWallet = async () => {
     if (window.ethereum) {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      setAccount(accounts[0]);
+      try {
+        
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        
+        setAccount(accounts[0]);
+        
+        
+        refreshData();
+      } catch (err) {
+        console.error("User rejected connection");
+      }
     }
   };
 
@@ -105,34 +114,43 @@ function App() {
 
 
   // Sync Data (Balance & Inventory) 
-  const refreshData = async () => {
-    if (!account) return;
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    
-    // Fetch Token Balance
-    const token = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, provider);
-    const bal = await token.balanceOf(account);
-    setTokenBalance(ethers.formatEther(bal));
+  const refreshData = async (targetAccount = null) => {
+    const activeAccount = targetAccount || account; // Allow passing a specific account for refresh after wallet changes
+    if (!activeAccount) return;
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      
+      // Fetch Token Balance
+      const token = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, provider);
+      const bal = await token.balanceOf(activeAccount); // 使用 activeAccount
+      setTokenBalance(ethers.formatEther(bal));
 
-    // Fetch Bait Inventory from Pond
-    const pond = new ethers.Contract(POND_ADDRESS, POND_ABI, provider);
-    const bag = await pond.userBag(account);
-    const minnowCount = await pond.getMinnowCount(account);
-    const minnowState = await pond.getCurrentMinnowState(account);
-    setInventory({
-      corn: Number(bag.cornCount),
-      pea: Number(bag.peaCount),
-      minnow: Number(minnowCount),
-      currentLureState: minnowCount > 0 ? `${minnowState} / 3 uses left` : "None"
-    });
+      // Fetch Bait Inventory from Pond
+      const pond = new ethers.Contract(POND_ADDRESS, POND_ABI, provider);
+      const bag = await pond.userBag(activeAccount); // 使用 activeAccount
+      const minnowCount = await pond.getMinnowCount(activeAccount); // 使用 activeAccount
+      const minnowState = await pond.getCurrentMinnowState(activeAccount); // 使用 activeAccount
+      
+      setInventory({
+        corn: Number(bag.cornCount),
+        pea: Number(bag.peaCount),
+        minnow: Number(minnowCount),
+        currentLureState: minnowCount > 0 ? `${minnowState} / 3 uses left` : "None"
+      });
+    } catch (err) {
+      console.error("Refresh Data Failed:", err);
+    }
   };
 
-  useEffect(() => { if (account) refreshData(); }, [account]);
+  useEffect(() => { if (account) refreshData(account); }, [account]);
 
   // Buy Bait Logic (Approve + Buy)
   const handleBuyBait = async (type) => {
+    const isSynced = await validateAccount();
+    if (!isSynced) return;
     setLoading(true);
     setStatus("Processing purchase...");
+     
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -164,6 +182,8 @@ function App() {
 
   //  Fishing Logic
   const handleFish = async () => {
+    const isSynced = await validateAccount();
+    if (!isSynced) return;
     setLoading(true);
     setStatus("Casting line...");
     try {
@@ -204,6 +224,8 @@ function App() {
 
 
   const handleSellFish = async (tokenId) => {
+    const isSynced = await validateAccount();
+    if (!isSynced) return;
     setLoading(true);
     setStatus(`Preparing to sell Fish #${tokenId}...`);
     try {
@@ -237,6 +259,8 @@ function App() {
 
 
   const fetchCollections = async () => {
+    const isSynced = await validateAccount();
+    if (!isSynced) return;
     if (!account) return;
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -261,6 +285,8 @@ function App() {
 
   // check this player is owner or not, if owner then show the withdraw hub and finance data
   const fetchFinanceData = async () =>{
+    const isSynced = await validateAccount();
+    if (!isSynced) return;
     if(!account)  return;
     const provider = new ethers.BrowserProvider(window.ethereum);
     const tokenContract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, provider);
@@ -276,6 +302,8 @@ function App() {
 
   
   const handleSellTokens = async() => {
+    const isSynced = await validateAccount();
+    if (!isSynced) return;
     if(!sellCftAmount || isNaN(sellCftAmount))  return;
     setLoading(true);
     setStatus("Exchanging CFT for ETH...");
@@ -298,6 +326,8 @@ function App() {
 
 
   const handleAdminWithdraw = async() => {
+    const isSynced = await validateAccount();
+    if (!isSynced) return;
     if(!withdrawAmount || isNaN(withdrawAmount)) return;
     setLoading(true);
     setStatus("Withdrawing contract profits...");
@@ -316,6 +346,24 @@ function App() {
     }
     setLoading(false);
   }
+
+  // This function can be called before any critical transaction to ensure the front-end account state is in sync with MetaMask. If a user has switched accounts or if there is any discrepancy, it will update the state and prompt the user to try again, preventing failed transactions due to account mismatch.
+  const validateAccount = async () => {
+    if (!window.ethereum) return false;
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    const currentActiveAccount = accounts[0]?.toLowerCase();
+    
+    if (currentActiveAccount !== account?.toLowerCase()) {
+      // If there is a discrepancy, force an update to the front-end state and block the transaction.
+      setAccount(accounts[0]);
+
+      await refreshData(accounts[0]);
+      setStatus("⚠️ Account sync error! Please try clicking the button again.");
+      return false;
+    }
+    return true;
+  };
+
 
 
   return (
