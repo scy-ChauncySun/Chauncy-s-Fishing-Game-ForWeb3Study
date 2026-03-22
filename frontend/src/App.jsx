@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 
-const TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+import { TOKEN_ADDRESS, NFT_ADDRESS, POND_ADDRESS } from './contract-config';
+
+
+// const TOKEN_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 const TOKEN_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
@@ -14,8 +17,8 @@ const TOKEN_ABI = [
   "function EXCHANGE_RATE() view returns (uint256)"
 ];
 
+// const NFT_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 
-const NFT_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 const NFT_ABI = [
   "function getFullCollection(address _owner) external view returns (uint256[] memory)",
   "function approve(address to, uint256 tokenId) external",
@@ -23,7 +26,8 @@ const NFT_ABI = [
   "function walletOfOwner(address _owner) public view returns (uint256[] memory)"
 ];
 
-const POND_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+// const POND_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+
 const POND_ABI = [
   "function buyBait(uint8 _type, uint256 _amount) external",
   "function CastLine(uint8 _chosenBait) external",

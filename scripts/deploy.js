@@ -1,4 +1,7 @@
 const {ethers} = require("hardhat");
+
+const fs = require("fs"); // Import the file system module
+const path = require("path"); // Import path module
  
 async function main(){
     const [deployer]  = await ethers.getSigners();
@@ -52,6 +55,31 @@ async function main(){
     await transferTx.wait();
     
     console.log("Pond now has 1000 CFT for buybacks.");
+
+
+    const addresses = {
+        TOKEN_ADDRESS: token.target,
+        NFT_ADDRESS: nft.target,
+        POND_ADDRESS: pond.target,
+        DEPLOYER: deployer.address,
+        DEPLOY_TIME: new Date().toLocaleString()
+    };
+
+
+    const configDir = path.join(__dirname, "../frontend/src");
+    const configPath = path.join(configDir, "contract-config.js");
+    if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir, { recursive: true });
+    }
+
+    const configContent = `
+export const TOKEN_ADDRESS = "${token.target}";
+export const NFT_ADDRESS = "${nft.target}";
+export const POND_ADDRESS = "${pond.target}";
+    `.trim();
+
+    fs.writeFileSync(configPath, configContent);
+    console.log(`Contract addresses saved to: ${configPath}`);
 
 
     console.log("\n---Deployment Complete---");
