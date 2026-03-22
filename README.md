@@ -1,6 +1,27 @@
-# 🎣 Chauncy Fishing Game (The Backend for a Fishing Game)
+# 🎣 Chauncy's Fishing Game 
 
-A decentralized fishing simulation game powered by Solidity. Players can exchange ETH for custom tokens, purchase various baits, and catch unique NFT fish with randomized species attributes.
+A decentralized fishing simulation game developed as a hands-on project to master Web3 development concepts. Players can buy bait using custom tokens, catch unique fish NFTs, and manage their earnings through a financial hub.
+
+## 🚀 Learning Objectives
+This project was created to explore and implement:
+* **Smart Contract Development:** Writing, testing, and deploying secure contracts.
+* **Tokenomics:** Implementing a dual-token system (ERC-20 for currency and ERC-721 for collectibles).
+* **Frontend Integration:** Connecting a React UI to the blockchain using Ethers.js.
+* **Asset Management:** Handling NFT metadata and media via IPFS (Pinata).
+
+## 🛠️ Tech Stack
+* **Blockchain Framework:** [Hardhat](https://hardhat.org/) (Development, testing, and local node deployment)
+* **Smart Contracts:** Solidity (ERC-20 & ERC-721)
+* **Frontend:** React.js
+* **Web3 Library:** Ethers.js (v6)
+* **Storage:** Pinata / IPFS (NFT Images & Metadata)
+* **Wallet:** MetaMask
+
+## ⚠️ Current Status: Local Deployment
+Please note that this project is currently configured for **Localhost only**. 
+* The contracts are deployed on a local Hardhat node.
+* It is not currently live on any public Testnets.
+* All assets and transactions shown in the demonstrations are running on a local development environment.
 
 ## Core Features & Logic (Current Progress)
 
