@@ -132,14 +132,14 @@ function App() {
       
       // Fetch Token Balance
       const token = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, provider);
-      const bal = await token.balanceOf(activeAccount); // 使用 activeAccount
+      const bal = await token.balanceOf(activeAccount); 
       setTokenBalance(ethers.formatEther(bal));
 
       // Fetch Bait Inventory from Pond
       const pond = new ethers.Contract(POND_ADDRESS, POND_ABI, provider);
-      const bag = await pond.userBag(activeAccount); // 使用 activeAccount
-      const minnowCount = await pond.getMinnowCount(activeAccount); // 使用 activeAccount
-      const minnowState = await pond.getCurrentMinnowState(activeAccount); // 使用 activeAccount
+      const bag = await pond.userBag(activeAccount); 
+      const minnowCount = await pond.getMinnowCount(activeAccount); 
+      const minnowState = await pond.getCurrentMinnowState(activeAccount); 
       
 
       const name = await pond.getNickname(activeAccount);
