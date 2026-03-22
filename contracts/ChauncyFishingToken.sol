@@ -43,7 +43,7 @@ contract ChauncyFishingToken is ERC20,Ownable {
      * @dev Players exchange their CFT holdings for ETH.
      * @param _cftAmount CFT that the player is willing to offer.
      */
-    function sellTokensForETH(uint256 _cftAmount) public {
+    function sellTokensForEth(uint256 _cftAmount) public {
         require(_cftAmount > 0, "Amount must be > 0");
         require(balanceOf(msg.sender) >= _cftAmount, "You don't have enough CFT.");
 

@@ -13,7 +13,7 @@ const TOKEN_ABI = [
   "function approve(address spender, uint256 amount) returns (bool)", // Crucial for buying bait
   "function withDrawETH(uint256 _amount) public",
   "function owner() view returns (address)",
-  "function sellTokensForETH(uint256 _cftAmount) public",
+  "function sellTokensForEth(uint256 _cftAmount) public",
   "function EXCHANGE_RATE() view returns (uint256)"
 ];
 
@@ -330,7 +330,7 @@ function App() {
       const signer = await provider.getSigner();
       const tokenContract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, signer);
 
-      const tx = await tokenContract.sellTokensForETH(ethers.parseEther(sellCftAmount));
+      const tx = await tokenContract.sellTokensForEth(ethers.parseEther(sellCftAmount));
       await tx.wait();
       setStatus("Exchange successful!");
       refreshData();
