@@ -36,6 +36,8 @@ const POND_ABI = [
   "function getCurrentMinnowState(address _userAddr) external view returns(uint8)",
   "function fishPrices(uint256) view returns (uint256)", 
   "function sellFish(uint256 _tokenId) external",
+  "function setNickname(string memory _newName) external",
+  "function getNickname(address _user) public view returns (string memory)",
   "event Fished(address indexed player, uint256 tokenId, uint256 typeId, uint8 usedBait, string dietGroup)"
 ];
 
@@ -69,7 +71,9 @@ function App() {
   const [fishCollections, setFishCollections] = useState({}); // store the count of each fish type in user's collection
   const [showCollection, setShowCollection] = useState(false); // control the visibility of the collection section
 
-  
+  const [nickname, setNicknameState] = useState("Fisherman");
+  const [newNicknameInput, setNewNicknameInput] = useState("");
+  const [showNameModal, setShowNameModal] = useState(false); // control nickname editing modal visibility
 
 
   // --- Wallet Connection ---
@@ -91,6 +95,8 @@ function App() {
 
   const buyCFT = async (amount) => {
     if (!amount || amount <= 0) return;
+    const isSynced = await validateAccount();
+    if (!isSynced) return;
     setLoading(true);
     setStatus(`Exchanging ETH for ${amount} CFT...`);
     try {
@@ -135,6 +141,9 @@ function App() {
       const minnowCount = await pond.getMinnowCount(activeAccount); // 使用 activeAccount
       const minnowState = await pond.getCurrentMinnowState(activeAccount); // 使用 activeAccount
       
+
+      const name = await pond.getNickname(activeAccount);
+      setNicknameState(name);
       setInventory({
         corn: Number(bag.cornCount),
         pea: Number(bag.peaCount),
@@ -146,7 +155,12 @@ function App() {
     }
   };
 
-  useEffect(() => { if (account) refreshData(account); }, [account]);
+  useEffect(() => { 
+    if (account) {
+      refreshData(account);
+      fetchFinanceData();
+    }
+  }, [account]);
 
   // Buy Bait Logic (Approve + Buy)
   const handleBuyBait = async (type) => {
@@ -369,22 +383,87 @@ function App() {
   };
 
 
+  const handleUpdateNickname = async () => {
+    if (!newNicknameInput) return;
+    const isSynced = await validateAccount();
+    if (!isSynced) return;
+
+    setLoading(true);
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const pond = new ethers.Contract(POND_ADDRESS, POND_ABI, signer);
+
+      const tx = await pond.setNickname(newNicknameInput,{
+        gasLimit: 100000 // Set a reasonable gas limit for nickname update
+      });
+      await tx.wait();
+      
+      setStatus("Nickname updated!");
+      setShowNameModal(false);
+      refreshData();
+    } catch (err) {
+      setStatus("Update failed: " + (err.reason || "Check admin restrictions"));
+    }
+    setLoading(false);
+  };
+
+
 
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto', fontFamily: 'Arial' }}>
-      <h1>🎣 Fishing Game</h1>
+      {account && (
+        <div style={{ 
+          textAlign: 'center', 
+          marginBottom: '30px', 
+          padding: '20px', 
+          backgroundColor: '#f0f7ff', 
+          borderRadius: '15px', 
+          border: '2px dashed #3498db',
+          position: 'relative' 
+        }}>
+          <h2 style={{ margin: 0, color: '#2c3e50' }}>
+            👋 Welcome, <span style={{ color: '#e67e22' }}>{nickname}</span> !
+          </h2>
+          
+          {/* Nickname button moved under welcome message and only shows for non-admins */}
+          {!isOwner && (
+            <button 
+              onClick={() => setShowNameModal(true)}
+              style={{ 
+                marginTop: '10px',
+                fontSize: '12px', 
+                padding: '5px 15px', 
+                backgroundColor: '#9b59b6', 
+                color: 'white',
+                border: 'none',
+                borderRadius: '20px',
+                cursor: 'pointer'
+              }}
+            >
+              ✏️ Edit Nickname
+            </button>
+          )}
+        </div>
+      )}
+
+      <h1 style={{ textAlign: 'center' }}>🎣 Chauncy's Fishing Game</h1>
+      
       {!account ? (
-        <button onClick={connectWallet}>Connect Wallet</button>
+        <div style={{ textAlign: 'center' }}>
+          <button onClick={connectWallet}>Connect Wallet</button>
+        </div>
       ) : (
         <>
-          <section style={sectionStyle}>
+          {/* Centered Account and Bank section */}
+          <section style={{ ...sectionStyle, textAlign: 'center' }}>
             <h3>👤 Account & Bank</h3>
-            <p>Address: <code>{account.substring(0,6)}...{account.substring(38)}</code></p>
-            <p>Balance: <strong>{tokenBalance} CFT</strong></p>
+            <div style={{ marginBottom: '15px' }}>
+              <p style={{ margin: '5px 0' }}>Address: <code>{account.substring(0,6)}...{account.substring(38)}</code></p>
+              <p style={{ margin: '5px 0', fontSize: '18px' }}>Balance: <strong>{tokenBalance} CFT</strong></p>
+            </div>
             
-          
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
-              
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
               <select 
                 value={buyAmount} 
                 onChange={(e) => setBuyAmount(Number(e.target.value))}
@@ -396,7 +475,6 @@ function App() {
                 <option value="500">500 CFT (0.5 ETH)</option>
               </select>
 
-              
               <button 
                 onClick={() => buyCFT(buyAmount)} 
                 disabled={loading} 
@@ -404,18 +482,23 @@ function App() {
                   backgroundColor: '#e1f5fe', 
                   color: '#01579b', 
                   padding: '8px 15px',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
+                  border: '1px solid #b3e5fc',
+                  borderRadius: '5px'
                 }}
               >
-                {loading ? "Processing..." : `Buy ${buyAmount} CFT`}
+                {loading ? "Processing..." : `Buy CFT`}
               </button>
 
-              <button onClick={() => { fetchFinanceData(); setShowWithdrawHub(true); }} style={{backgroundColor: '#f39c12', color: 'white'}}>
+              <button 
+                onClick={() => { fetchFinanceData(); setShowWithdrawHub(true); }} 
+                style={{ backgroundColor: '#f39c12', color: 'white', border: 'none', borderRadius: '5px', padding: '8px 15px' }}
+              >
                 💰 Withdraw Hub
               </button>
             </div>
             
-            <p style={{color: 'blue', fontWeight: 'bold'}}>{status}</p>
+            {status && <p style={{ color: 'blue', fontWeight: 'bold', marginTop: '10px' }}>{status}</p>}
           </section>
 
           <section style={sectionStyle}>
@@ -431,33 +514,35 @@ function App() {
             </button>
           </section>
 
-
           <section style={sectionStyle}>
             <h3>🛒 Bait Shop (Cost: 5-15 CFT)</h3>
-            <button   
-              onClick={() => handleBuyBait(1)} 
-              disabled={loading || tokenBalance < 5}
-            >
-                Buy Corn (5CFT) 
-            </button>
-            <button 
-              onClick={() => handleBuyBait(2)} 
-              disabled={loading || tokenBalance < 5}
-            >
-              Buy Pea (5CFT)
-            </button>
-            <button 
-              onClick={() => handleBuyBait(3)} 
-              disabled={loading || tokenBalance < 15}
-            >
-              Buy Minnow (15CFT)
-            </button>
-            <div style={{ marginTop: '10px', backgroundColor: '#f9f9f9', padding: '10px' }}>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+              <button 
+                onClick={() => handleBuyBait(1)} 
+                disabled={loading || tokenBalance < 5}
+                style={{ flex: 1, padding: '10px 5px', whiteSpace: 'nowrap' }}
+              >
+                🌽 Corn * 1 (5 CFT)
+              </button>
+              <button 
+                onClick={() => handleBuyBait(2)} 
+                disabled={loading || tokenBalance < 5}
+                style={{ flex: 1, padding: '10px 5px', whiteSpace: 'nowrap' }}
+              >
+                🟢 Pea * 1 (5 CFT)
+              </button>
+              <button 
+                onClick={() => handleBuyBait(3)} 
+                disabled={loading || tokenBalance < 15}
+                style={{ flex: 1, padding: '10px 5px', whiteSpace: 'nowrap' }}
+              >
+                🐟 Minnow Lure * 1 (15 CFT)
+              </button>
+            </div>
+            <div style={{ marginTop: '10px', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px' }}>
               <p>🌽 Corn: {inventory.corn}</p>
               <p>🟢 Pea: {inventory.pea}</p>
               <p>🐟 Minnow Lures: {inventory.minnow > 0 ? inventory.minnow : "None"}</p>
-              
-              
               {inventory.minnow > 0 && (
                 <p style={{ color: '#d35400', fontWeight: 'bold' }}>
                   ⚙️ Current Minnow Durability: {inventory.currentLureState}
@@ -468,34 +553,31 @@ function App() {
 
           <section style={sectionStyle}>
             <h3>🌊 Fishing Pond</h3>
-            <select value={selectedBait} onChange={(e) => setSelectedBait(e.target.value)}>
-              <option value="1">Use Corn (Herbivorous)</option>
-              <option value="2">Use Pea (Herbivorous)</option>
-              <option value="3">Use Minnow (Carnivorous)</option>
-            </select>
-            <button onClick={handleFish} disabled={loading} style={{marginLeft: '10px'}}>CAST LINE</button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <select style={{ flex: 1 }} value={selectedBait} onChange={(e) => setSelectedBait(e.target.value)}>
+                <option value="1">Use Corn (Herbivorous)</option>
+                <option value="2">Use Pea (Herbivorous)</option>
+                <option value="3">Use Minnow (Carnivorous)</option>
+              </select>
+              <button onClick={handleFish} disabled={loading} style={{ padding: '0 20px' }}>CAST LINE</button>
+            </div>
           </section>
         </>
       )}
 
+      {/* Caught Fish Modal */}
       {showModal && caughtFish && (
         <div style={modalOverlayStyle}>
           <div style={modalContentStyle}>
             <h2 style={{ color: '#f1c40f' }}>🌟 NEW FISH CAUGHT! 🌟</h2>
-            
-           
             <img 
-              
               src={new URL(`./assets/fishes/${caughtFish.id}.png`, import.meta.url).href} 
               alt={caughtFish.name}
               style={{ width: '200px', height: '200px', objectFit: 'contain', margin: '20px 0' }}
-              // 防崩
               onError={(e) => { e.target.src = 'https://via.placeholder.com/200?text=Fish+Image'; }}
             />
-            
             <h3>{caughtFish.name}</h3>
             <p style={{ color: '#7f8c8d' }}>Token ID: #{caughtFish.tokenId}</p>
-            
             <button 
               onClick={() => setShowModal(false)}
               style={{ backgroundColor: '#3498db', color: 'white', padding: '10px 30px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
@@ -506,7 +588,7 @@ function App() {
         </div>
       )}
 
-      {/* --- collection --- */}
+      {/* Collection Modal */}
       {showCollection && (
         <div style={collectionOverlayStyle}>
           <div style={collectionContainerStyle}>
@@ -514,57 +596,40 @@ function App() {
               <h2 style={{ margin: 0 }}>🐟 Fish Encyclopedia & Market</h2>
               <button onClick={() => setShowCollection(false)} style={closeBtnStyle}>X</button>
             </div>
-
             <div style={gridStyle}>
               {FISH_NAMES.map((name, index) => {
                 const count = fishCollections[index] || 0;
                 const isOwned = count > 0;
-
                 return (
                   <div key={index} style={fishCardStyle}>
                     <img 
                       src={new URL(`./assets/fishes/${index}.png`, import.meta.url).href}
                       alt={name}
                       style={{
-                        width: '80px',
-                        height: '80px',
-                        objectFit: 'contain',
+                        width: '80px', height: '80px', objectFit: 'contain',
                         filter: isOwned ? 'none' : 'brightness(0) blur(4px)',
                         opacity: isOwned ? 1 : 0.4
                       }}
                       onError={(e) => { e.target.src = 'https://via.placeholder.com/80?text=Fish'; }}
                     />
-                    
                     <div style={{ fontSize: '11px', marginTop: '8px', color: isOwned ? '#2c3e50' : '#bdc3c7', fontWeight: 'bold' }}>
                       {isOwned ? name : "???"}
                     </div>
-
                     {isOwned && (
                       <>
                         <div style={badgeStyle}>x{count}</div>
                         <button 
                           onClick={async () => {
-                            
-                            // Automatically retrieve the first ID of this type for sale.
                             const provider = new ethers.BrowserProvider(window.ethereum);
                             const nftContract = new ethers.Contract(NFT_ADDRESS, NFT_ABI, provider);
                             const allIds = await nftContract.walletOfOwner(account);
-                            
-                            // Find the first ID belonging to the current fish species.
                             let targetId = null;
                             for(let id of allIds) {
                               const type = await nftContract.getFishType(id);
-                              if(Number(type) === index) {
-                                targetId = id;
-                                break;
-                              }
+                              if(Number(type) === index) { targetId = id; break; }
                             }
-
-                            if(targetId !== null) {
-                              handleSellFish(targetId);
-                            } else {
-                              alert("Could not find a valid ID for this fish.");
-                            }
+                            if(targetId !== null) { handleSellFish(targetId); }
+                            else { alert("Could not find a valid ID for this fish."); }
                           }}
                           style={sellBtnStyle}
                           disabled={loading}
@@ -581,82 +646,74 @@ function App() {
         </div>
       )}
 
+      {/* Withdraw Hub Modal */}
       {showWithdrawHub && (
         <div style={collectionOverlayStyle}>
           <div style={{...collectionContainerStyle, maxWidth: '500px'}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <h2 style={{ margin: 0 }}>💰 Finance & Exchange Hub</h2>
+              <h2 style={{ margin: 0 }}>💰 Finance Hub</h2>
               <button onClick={() => setShowWithdrawHub(false)} style={closeBtnStyle}>X</button>
             </div>
-
-            {/* Transaction Status Message */}
             <p style={{color: 'blue', fontWeight: 'bold'}}>{status}</p>
-
-            {/* PART 1: General Player Exchange (CFT -> ETH) - Visible to all users including Owner */}
             <section style={{...sectionStyle, backgroundColor: '#f8f9fa'}}>
               <h4>🎮 Redeem Earnings (CFT to ETH)</h4>
               <p>Your Balance: <strong>{tokenBalance} CFT</strong></p>
               <div style={{display: 'flex', gap: '10px'}}>
                 <input 
-                  type="number" 
-                  placeholder="Enter CFT amount" 
-                  value={sellCftAmount}
+                  type="number" placeholder="Enter CFT amount" value={sellCftAmount}
                   onChange={(e) => setSellCftAmount(e.target.value)}
                   style={{flex: 1, padding: '8px', border: '1px solid #ddd', borderRadius: '4px'}}
                 />
-                <button 
-                  onClick={handleSellTokens} 
-                  disabled={loading || !sellCftAmount} 
-                  style={{backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', padding: '0 15px', cursor: 'pointer'}}
-                >
+                <button onClick={handleSellTokens} disabled={loading || !sellCftAmount} 
+                  style={{backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '5px', padding: '0 15px', cursor: 'pointer'}}>
                   Exchange
                 </button>
               </div>
-              <small style={{color: '#7f8c8d'}}>Current Rate: 1000 CFT = 1 ETH</small>
+              <small style={{color: '#7f8c8d'}}>Rate: 1000 CFT = 1 ETH</small>
             </section>
 
-            {/* PART 2: Admin Profit Withdrawal - Only visible to the Contract Owner */}
             {isOwner && (
               <section style={{...sectionStyle, borderColor: '#e74c3c', backgroundColor: '#fff5f5', marginTop: '20px'}}>
-                <h4 style={{color: '#c0392b'}}>🛡️ Admin Treasury (Owner Only)</h4>
-                <p>Total Contract Vault: <strong>{contractEth} ETH</strong></p>
-                <p style={{fontSize: '12px', color: '#e67e22'}}>
-                  ⚠️ 1 ETH reserve required for players. Max withdrawable: {Math.max(0, parseFloat(contractEth) - 1).toFixed(4)} ETH
-                </p>
+                <h4 style={{color: '#c0392b'}}>🛡️ Admin Treasury</h4>
+                <p>Contract Vault: <strong>{contractEth} ETH</strong></p>
                 <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
                   <input 
-                    type="number" 
-                    placeholder="Enter ETH amount" 
-                    value={withdrawAmount}
+                    type="number" placeholder="ETH amount" value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
                     style={{flex: 1, padding: '8px', border: '1px solid #c0392b', borderRadius: '4px'}}
                   />
-                  <button 
-                    onClick={handleAdminWithdraw} 
-                    disabled={loading || !withdrawAmount} 
-                    style={{backgroundColor: '#c0392b', color: 'white', border: 'none', borderRadius: '5px', padding: '0 15px', cursor: 'pointer'}}
-                  >
-                    Withdraw Profit
+                  <button onClick={handleAdminWithdraw} disabled={loading || !withdrawAmount} 
+                    style={{backgroundColor: '#c0392b', color: 'white', border: 'none', borderRadius: '5px', padding: '0 15px', cursor: 'pointer'}}>
+                    Withdraw
                   </button>
                 </div>
               </section>
             )}
-            
             <div style={{textAlign: 'center', marginTop: '20px'}}>
-              <button 
-                onClick={() => setShowWithdrawHub(false)} 
-                style={{padding: '10px 20px', cursor: 'pointer', borderRadius: '5px', border: '1px solid #ccc'}}
-              >
-                Back to Game
-              </button>
+              <button onClick={() => setShowWithdrawHub(false)} style={{padding: '10px 20px', borderRadius: '5px', border: '1px solid #ccc'}}>Back</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Nickname Modal */}
+      {showNameModal && (
+        <div style={modalOverlayStyle}>
+          <div style={modalContentStyle}>
+            <h3>Update Your Identity</h3>
+            <input 
+              type="text" placeholder="New Nickname..." value={newNicknameInput}
+              onChange={(e) => setNewNicknameInput(e.target.value)}
+              style={{ width: '80%', padding: '10px', marginBottom: '20px' }}
+            />
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button onClick={handleUpdateNickname} disabled={loading} style={{ backgroundColor: '#2ecc71', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '5px' }}>Save</button>
+              <button onClick={() => setShowNameModal(false)} style={{ padding: '10px 20px', borderRadius: '5px', border: '1px solid #ccc' }}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-
-  
   );
 }
 

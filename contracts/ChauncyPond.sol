@@ -33,6 +33,9 @@ contract ChauncyPond is Ownable{
     // a mapping to store the price of each type of fish.
     mapping(uint256 => uint256) public fishPrices;
 
+    // a mapping to store players' nicknames.
+    mapping(address => string) public nicknames;
+
     // Define prices for each bait type 
     uint256 priceNormal = 5 * 10 ** 18; // Normal baits 5 CFT, disappears after one use
     uint256 priceMinnow = 15 * 10 ** 18; // Minnow lures 15 CFT, can be used 3 times.
@@ -224,6 +227,27 @@ contract ChauncyPond is Ownable{
 
     }
 
+
+    function setNickname(string memory _newName) external{
+        // Administrators are prohibited from changing their own nicknames.
+        require(msg.sender != owner(), "Admin name is fixed as Administrator");
+        bytes memory strBytes = bytes(_newName);
+        require(strBytes.length > 0 && strBytes.length <= 20, "Name length 1-20 chars");
+        nicknames[msg.sender] = _newName;
+    }
+
+
+    function getNickname(address _user) public view returns (string memory) {
+        if (_user == owner()) {
+            return "Administrator";
+        }
+        
+        if (bytes(nicknames[_user]).length == 0) {
+            return "Fisherman";
+        }
+        
+        return nicknames[_user];
+    }
 
     
 
