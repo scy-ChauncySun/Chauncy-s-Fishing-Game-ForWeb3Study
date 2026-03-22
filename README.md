@@ -59,3 +59,6 @@ Resolved an issue where fish types were repetitive due to local block timestamp 
     2. Completed the frontend functionality allowing users to withdraw all of their CFT.
 
     The development tasks are basically completed; final debugging will be conducted tomorrow.
+
+### 2026-03-22
+- **[Develop] Frontend UI development**: Development tasks are basically completed; debug and improve UI display and optimize functionality.
