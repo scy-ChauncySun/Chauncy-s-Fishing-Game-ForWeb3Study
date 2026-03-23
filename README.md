@@ -200,6 +200,17 @@ Upon entering the main page, users can perform the following actions:
 
    In other respects, the contract owner is the same as the regular player.
 
+## Finally, I almost forgot to introduce the gameplay mechanics.☝🏼
+
+  **There are currently 14 types of fish, which can be categorized by their diet:**
+  
+  1. Herbivorous fish
+  
+  2. Carnivorous fish
+  
+  3. Omnivorous fish.
+  
+  To catch herbivorous fish, you can only use corn and peas. Similarly, carnivorous fish will only eat lures. However, those voracious omnivorous fish might not pass up any kind of bait.
 
 ## Development Logs
 
