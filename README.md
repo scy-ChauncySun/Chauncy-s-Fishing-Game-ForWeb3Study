@@ -2,6 +2,13 @@
 
 A decentralized fishing simulation game developed as a hands-on project to master Web3 development concepts. Players can buy bait using custom tokens, catch unique fish NFTs, and manage their earnings through a financial hub.
 
+> **⚠️ Disclaimer**: 
+> This project is developed strictly for **educational and personal learning purposes** only. It has **no commercial intent**. 
+> 
+> Currently, the dApp is **not deployed** on any public testnets or mainnets. It is designed to run and be tested exclusively in a **local development environment** (e.g., Hardhat node). 
+> 
+> This project demonstrates the technical integration of ERC-20 and ERC-721 standards, showcasing how smart contracts manage game logic, random probability, and financial liquidity in a controlled, local setting.
+
 ## 🚀 Learning Objectives
 This project was created to explore and implement:
 * **Smart Contract Development:** Writing, testing, and deploying secure contracts.
@@ -181,15 +188,9 @@ Upon entering the main page, users can perform the following actions:
 
    As mentioned before, the contract owner uses the default nickname "Administrator" and cannot change it. However, the owner can view the ETH balance in the current contract address and withdraw it to his/her own account. (Of course, I've restricted the owner account to leaving some as a reserve fund in the bank.)
 
+   https://github.com/user-attachments/assets/80b22fc5-452e-4548-a510-f268e2a4652f
+
    In other respects, the contract owner is the same as the regular player.
-
-> **⚠️ Disclaimer**: 
-> This project is developed strictly for **educational and personal learning purposes** only. It has **no commercial intent**. 
-> 
-> Currently, the dApp is **not deployed** on any public testnets or mainnets. It is designed to run and be tested exclusively in a **local development environment** (e.g., Hardhat node). 
-> 
-> This project demonstrates the technical integration of ERC-20 and ERC-721 standards, showcasing how smart contracts manage game logic, random probability, and financial liquidity in a controlled, local setting.
-
 
 
 ## Development Logs
