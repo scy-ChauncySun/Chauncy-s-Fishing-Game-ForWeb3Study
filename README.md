@@ -154,10 +154,13 @@ Upon entering the main page, users can perform the following actions:
 6. **Cast the line**
 
     As long as the user holds at least one bait item, they can cast their line to begin fishing.
-    
-7. **View Fish Collection**
 
-After successfully catching a fish, users can click the **View Fish Collection** button to browse the CFISH NFTs they own in their wallet.They can choose to **sell** the NFT or keep it for now.
+    https://github.com/user-attachments/assets/f18fa89e-e5d7-4907-960d-5423938685a3
+    
+8. **View Fish Collection**
+
+   After successfully catching a fish, users can click the **View Fish Collection** button to browse the CFISH NFTs they own in their wallet.
+   They can choose to **sell** the NFT or keep it for now.
 
 6. **Withdraw via Withdraw Hub**
 
