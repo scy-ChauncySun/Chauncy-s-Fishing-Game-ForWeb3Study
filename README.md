@@ -168,6 +168,8 @@ Upon entering the main page, users can perform the following actions:
 
    Users can click the **Withdraw Hub** button to redeem their accumulated CFT tokens for ETH, which will then be sent directly to their connected wallet.
 
+   https://github.com/user-attachments/assets/f10180f5-21f9-49f9-aeb7-232c3f10fbc3
+
 > **⚠️ Disclaimer**: 
 > This project is developed strictly for **educational and personal learning purposes** only. It has **no commercial intent**. 
 > 
