@@ -97,6 +97,7 @@ graph TD
 The project is deployed using a local Hardhat environment. By default, Hardhat's test account **Account #0** is used as the contract owner.
 
 ![Output Of The Console](./assets/deploy.png)
+
 During the deployment phase, the following key steps are performed:
 
 1. **Deploy core contracts**  
@@ -169,6 +170,18 @@ Upon entering the main page, users can perform the following actions:
    Users can click the **Withdraw Hub** button to redeem their accumulated CFT tokens for ETH, which will then be sent directly to their connected wallet.
 
    https://github.com/user-attachments/assets/f10180f5-21f9-49f9-aeb7-232c3f10fbc3
+
+### From The Perspective Of The Constract Holder
+
+   **Next, let's play the game from the perspective of the contract holder.**
+
+   No need to refresh the webpage. You only need to switch to Account 1 in your wallet, click any transaction button in the game, and security restrictions will block the transaction and automatically connect to your current wallet account.
+
+   https://github.com/user-attachments/assets/ecfd2af1-44d2-432f-a855-a2f8a2448d5d
+
+   As mentioned before, the contract owner uses the default nickname "Administrator" and cannot change it. However, the owner can view the ETH balance in the current contract address and withdraw it to his/her own account. (Of course, I've restricted the owner account to leaving some as a reserve fund in the bank.)
+
+   In other respects, the contract owner is the same as the regular player.
 
 > **⚠️ Disclaimer**: 
 > This project is developed strictly for **educational and personal learning purposes** only. It has **no commercial intent**. 
