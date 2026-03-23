@@ -110,7 +110,7 @@ During the deployment phase, the following key steps are performed:
 ### Start Playing The Game
 ![Welcome Page](./assets/WelcomePage.png)
 Upon arriving at the welcome screen, the user clicks **Connect Wallet** to enter the main interface.
-![Main Page](./assets/mainpage.png)
+![Main Page](./assets/mainpage.jpeg)
 Upon entering the main page, users can perform the following actions:
 1. **Set or edit an in-game nickname**
 Users can assign themselves a nickname for use within the game and edit it at any time.
