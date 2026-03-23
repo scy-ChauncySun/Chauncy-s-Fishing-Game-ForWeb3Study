@@ -5,7 +5,7 @@ A decentralized fishing simulation game developed as a hands-on project to maste
 > **⚠️ Disclaimer**: 
 > This project is developed strictly for **educational and personal learning purposes** only. It has **no commercial intent**. 
 > 
-> Currently, the dApp is **not deployed** on any public testnets or mainnets. It is designed to run and be tested exclusively in a **local development environment** (e.g., Hardhat node). 
+> Currently, the game is **not deployed** on any public testnets or mainnets. It is designed to run and be tested exclusively in a **local development environment** (e.g., Hardhat node). 
 > 
 > This project demonstrates the technical integration of ERC-20 and ERC-721 standards, showcasing how smart contracts manage game logic, random probability, and financial liquidity in a controlled, local setting.
 
