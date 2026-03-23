@@ -138,6 +138,7 @@ Upon entering the main page, users can perform the following actions:
 
 2. **Exchange for CFT to start the fishing adventure**
     Users can swap ETH for CFT tokens to obtain the in-game currency required for gameplay.
+   
     https://github.com/user-attachments/assets/0a6c3517-6459-4d50-9cda-9b0dd006f82c
 
     
