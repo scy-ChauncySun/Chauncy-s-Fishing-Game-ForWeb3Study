@@ -40,6 +40,14 @@ Please note that this project is currently configured for **Localhost only**.
 
 4. NFT Persistence (ERC721): Caught fish are minted as unique NFTs with their species ID permanently mapped on-chain, ensuring metadata consistency via IPFS.
 
+   **IPFS Assets (via Pinata Gateway)**
+
+   To verify the decentralized storage of the NFT assets, you can access them directly through the following links:
+
+      * **NFT Image (Species #5):** [View Image on IPFS](https://gateway.pinata.cloud/ipfs/bafybeicsyits4b5uj3vwgwjfh7qg75mwutdqawiuk3jsudlcehlixvzfaq/5.png)
+  
+      * **NFT Metadata (Species #5):** [View JSON on IPFS](https://gateway.pinata.cloud/ipfs/bafybeifjhyvf24sraznr5ijnq44aronpalaufp46dbul3hrz7whe5goi6e/5.json)
+
 
 ## 🎮 Detailed Introduction
 
