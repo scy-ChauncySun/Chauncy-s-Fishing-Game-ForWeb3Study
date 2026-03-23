@@ -149,11 +149,13 @@ Upon entering the main page, users can perform the following actions:
 
     Users can buy two types of real bait (Corn & Pea) and one type of Minnow fake lure.
 
-5. **Cast the line**
+    https://github.com/user-attachments/assets/b7711855-f6e4-43fa-af2a-1db56706a2ca
+
+6. **Cast the line**
 
     As long as the user holds at least one bait item, they can cast their line to begin fishing.
     
-6. **View Fish Collection**
+7. **View Fish Collection**
 
 After successfully catching a fish, users can click the **View Fish Collection** button to browse the CFISH NFTs they own in their wallet.They can choose to **sell** the NFT or keep it for now.
 
