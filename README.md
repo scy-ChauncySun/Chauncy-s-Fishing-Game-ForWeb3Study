@@ -59,12 +59,12 @@ By connecting their Web3 wallets, users can engage in a complete on-chain circul
 
 ### ▶️ Process Diagram
 
+```mermaid
 graph TD
     %% Stage 1: Initialization
     Start([Project Launch]) --> Deploy[Contract Deployment]
     Deploy --> Inject[Admin injects ETH into Token Contract <br/>as Liquidity Reserve]
     Inject --> Setup[Pond Configuration: <br/>Set Fish Prices and Minting Rights]
-
     %% Stage 2: Economy
     Setup --> Economics{Economy Cycle}
     
@@ -74,14 +74,12 @@ graph TD
     %% Stage 3: Core Gameplay
     BuyBait --> Fishing[Cast Line: <br/>Consume Bait / Random Probability]
     Fishing --> MintNFT[Auto-Mint Fish NFT <br/>to Player Wallet]
-
     %% Stage 4: Earnings & Withdrawal
     MintNFT --> Market[Fish Market: <br/>Sell NFT for CFT Profit]
     
     Market --> Exit{Withdrawal}
     Exit --> UserSell[User Redemption: <br/>Burn CFT for ETH]
     Exit --> AdminWithdraw[Admin Withdrawal: <br/>Extract Surplus ETH/CFT]
-
     %% Styles
     style Start fill:#f9f,stroke:#333
     style Deploy fill:#dae8fc,stroke:#6c8ebf
