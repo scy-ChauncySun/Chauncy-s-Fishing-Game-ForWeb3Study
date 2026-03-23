@@ -122,24 +122,24 @@ Upon entering the main page, users can perform the following actions:
 
     Users can assign themselves a nickname for use within the game and edit it at any time.
 
-![Account2](./assets/loadacc2.png)
+    ![Account2](./assets/loadacc2.png)
 
-![TypingNewNickname](./assets/nicknameTyping.png)
+    ![TypingNewNickname](./assets/nicknameTyping.png)
 
     Enter your desired new nickname and click confirm in the authorization interface that pops up in Metamask.
 
-![FinishChangeNickname](./assets/nacknameDone.png)
+    ![FinishChangeNickname](./assets/nacknameDone.png)
 
     We have now successfully changed the nickname from the default "Fisherman" to "Peter".
 
     (Note: The contract owner is restricted from using this feature and can only use the nickname "Administrator".)
 
-![AdministratorChangingNickname](./assets/adminNickname.png)
+    ![AdministratorChangingNickname](./assets/adminNickname.png)
 
 2. **Exchange for CFT to start the fishing adventure**
     Users can swap ETH for CFT tokens to obtain the in-game currency required for gameplay.
 
-    <video src="./assets/buyTokens.mp4" width="100%" controls></video>
+    
 
 3. **Purchase bait and lures (when eligible)**
 
