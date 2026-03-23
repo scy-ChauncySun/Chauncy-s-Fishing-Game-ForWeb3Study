@@ -138,20 +138,21 @@ Upon entering the main page, users can perform the following actions:
 
 2. **Exchange for CFT to start the fishing adventure**
     Users can swap ETH for CFT tokens to obtain the in-game currency required for gameplay.
+    https://github.com/user-attachments/assets/0a6c3517-6459-4d50-9cda-9b0dd006f82c
 
     
 
-3. **Purchase bait and lures (when eligible)**
+4. **Purchase bait and lures (when eligible)**
 
     If the user holds a valid amount of CFT, the buttons to purchase bait and fake lures become available.
 
     Users can buy two types of real bait (Corn & Pea) and one type of Minnow fake lure.
 
-4. **Cast the line**
+5. **Cast the line**
 
     As long as the user holds at least one bait item, they can cast their line to begin fishing.
     
-5. **View Fish Collection**
+6. **View Fish Collection**
 
 After successfully catching a fish, users can click the **View Fish Collection** button to browse the CFISH NFTs they own in their wallet.They can choose to **sell** the NFT or keep it for now.
 
