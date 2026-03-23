@@ -87,6 +87,7 @@ graph TD
     style Fishing fill:#d5e8d4,stroke:#82b366
     style AdminWithdraw fill:#f8cecc,stroke:#b85450
 
+```
 
 > **⚠️ Disclaimer**: 
 > This project is developed strictly for **educational and personal learning purposes** only. It has **no commercial intent**. 
