@@ -162,9 +162,11 @@ Upon entering the main page, users can perform the following actions:
    After successfully catching a fish, users can click the **View Fish Collection** button to browse the CFISH NFTs they own in their wallet.
    They can choose to **sell** the NFT or keep it for now.
 
+   https://github.com/user-attachments/assets/178a8580-9c3f-4cf0-a201-602d4b6f7afb
+
 6. **Withdraw via Withdraw Hub**
 
-Users can click the **Withdraw Hub** button to redeem their accumulated CFT tokens for ETH, which will then be sent directly to their connected wallet.
+   Users can click the **Withdraw Hub** button to redeem their accumulated CFT tokens for ETH, which will then be sent directly to their connected wallet.
 
 > **⚠️ Disclaimer**: 
 > This project is developed strictly for **educational and personal learning purposes** only. It has **no commercial intent**. 
