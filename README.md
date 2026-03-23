@@ -212,6 +212,10 @@ Upon entering the main page, users can perform the following actions:
   
   To catch herbivorous fish, you can only use corn and peas. Similarly, carnivorous fish will only eat lures. However, those voracious omnivorous fish might not pass up any kind of bait.
 
+  The rarity of a fish, ranging from common to extremely rare, is reflected in its star rating, from one to five stars. You can also see this rarity in the CFISH card design—the rarer the fish, the more elaborate the card, and naturally, they fetch higher prices.
+
+  That's all for now, enjoy!
+
 ## Development Logs
 
 ### 2026-03-18
