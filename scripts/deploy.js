@@ -54,7 +54,7 @@ async function main(){
     const transferTx = await token.transfer(pond.target, ethers.parseEther("100000"));
     await transferTx.wait();
     
-    console.log("Pond now has 1000 CFT for buybacks.");
+    console.log("Pond now has 100000 CFT for buybacks.");
 
 
     const addresses = {

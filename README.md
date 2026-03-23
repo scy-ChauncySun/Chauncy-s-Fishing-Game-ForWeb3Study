@@ -58,6 +58,7 @@ By connecting their Web3 wallets, users can engage in a complete on-chain circul
 5.  **Withdrawal**: At any time, users can choose to convert their **CFT** back into **ETH**, which is then transferred directly to their personal wallet.
 
 ### ▶️ Process Diagram
+#### Here is a flowchart illustrating the logic above.
 
 ```mermaid
 graph TD
@@ -88,6 +89,43 @@ graph TD
     style AdminWithdraw fill:#f8cecc,stroke:#b85450
 
 ```
+
+## 🎞 Demonstration Screenshots & Videos.
+
+### Contract Deployment Phase
+The project is deployed using a local Hardhat environment. By default, Hardhat's test account **Account #0** is used as the contract owner.
+
+![Output Of The Console](./assets/deploy.png)
+During the deployment phase, the following key steps are performed:
+
+1. **Deploy core contracts**  
+   All necessary smart contracts are deployed to the local blockchain.
+
+2. **Set pricing for the 14 fish NFTs**  
+   The contract owner configures the corresponding CFT prices for each of the 14 different fish NFT types in the pond.
+
+3. **Inject initial liquidity / startup funds**  
+   The contract owner transfers an initial amount of ETH to the contract address. This ETH serves as the liquidity reserve / backing pool for token redemptions and the overall economy.
+
+### Start Playing The Game
+![Welcome Page](./assets/WelcomePage.png)
+Upon arriving at the welcome screen, the user clicks **Connect Wallet** to enter the main interface.
+![Main Page](./assets/mainpage.png)
+Upon entering the main page, users can perform the following actions:
+1. #### Set or edit an in-game nickname
+Users can assign themselves a nickname for use within the game and edit it at any time.
+(Note: The contract owner is restricted from using this feature and can only use the nickname "Administrator".)
+2. #### Exchange for CFT to start the fishing adventure
+Users can swap ETH for CFT tokens to obtain the in-game currency required for gameplay.
+3. #### Purchase bait and lures (when eligible)
+If the user holds a valid amount of CFT, the buttons to purchase bait and fake lures become available.
+Users can buy two types of real bait (Corn & Pea) and one type of Minnow fake lure.
+4. #### Cast the line
+As long as the user holds at least one bait item, they can cast their line to begin fishing.
+5. #### View Fish Collection
+After successfully catching a fish, users can click the **View Fish Collection** button to browse the CFISH NFTs they own in their wallet.They can choose to **sell** the NFT or keep it for now.
+6. #### Withdraw via Withdraw Hub
+Users can click the **Withdraw Hub** button to redeem their accumulated CFT tokens for ETH, which will then be sent directly to their connected wallet.
 
 > **⚠️ Disclaimer**: 
 > This project is developed strictly for **educational and personal learning purposes** only. It has **no commercial intent**. 
