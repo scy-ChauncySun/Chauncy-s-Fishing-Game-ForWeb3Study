@@ -34,6 +34,38 @@ Please note that this project is currently configured for **Localhost only**.
 4. NFT Persistence (ERC721): Caught fish are minted as unique NFTs with their species ID permanently mapped on-chain, ensuring metadata consistency via IPFS.
 
 
+## 🎮 Detailed Introduction
+
+**Chauncy's Fishing Game** is a decentralized mini-game developed as an introductory project for learning Web3 development. The ecosystem features a custom utility token, **ChauncyFishingToken (CFT)**, and a unique collection of Non-Fungible Tokens, **Chauncy Fish (CFISH)**.
+
+By connecting their Web3 wallets, users can engage in a complete on-chain circular economy:
+
+### 🪙 Token Economy & Assets
+* **ChauncyFishingToken (CFT)**: The primary in-game currency used for all transactions.
+* **Chauncy Fish (CFISH)**: ERC-721 NFTs representing the fish caught by players, featuring unique metadata and scarcity.
+
+### 🎣 Core Gameplay Features
+
+1.  **Token Exchange (Swap)**: Seamlessly exchange **ETH** for **CFT** to kickstart your fishing journey.
+2.  **Bait Shop**: Spend your **CFT** to purchase different types of bait. Currently, three tiers are available:
+    * 🌽 **Corn** 
+    * 🫛 **Pea** 
+    * 🐟 **Minnow Lure** 
+3.  **On-chain Fishing**: Cast your line using your bait to catch a **CFISH**. The result is determined by on-chain logic, yielding fish with randomized rarities ranging from **1-Star to 5-Stars**.
+4.  **NFT Marketplace (Buyback)**: 
+    * **Collect**: You may choose to hold your CFISH.
+    * **Sell**: Liquidate your CFISH back to the game shop in exchange for **CFT**. The payout scales with the star-rating (rarity) of the fish.
+5.  **Withdrawal**: At any time, users can choose to convert their **CFT** back into **ETH**, which is then transferred directly to their personal wallet.
+
+> **⚠️ Disclaimer**: 
+> This project is developed strictly for **educational and personal learning purposes** only. It has **no commercial intent**. 
+> 
+> Currently, the dApp is **not deployed** on any public testnets or mainnets. It is designed to run and be tested exclusively in a **local development environment** (e.g., Hardhat node). 
+> 
+> This project demonstrates the technical integration of ERC-20 and ERC-721 standards, showcasing how smart contracts manage game logic, random probability, and financial liquidity in a controlled, local setting.
+
+
+
 ## Development Logs
 
 ### 2026-03-18
