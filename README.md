@@ -57,6 +57,39 @@ By connecting their Web3 wallets, users can engage in a complete on-chain circul
     * **Sell**: Liquidate your CFISH back to the game shop in exchange for **CFT**. The payout scales with the star-rating (rarity) of the fish.
 5.  **Withdrawal**: At any time, users can choose to convert their **CFT** back into **ETH**, which is then transferred directly to their personal wallet.
 
+### ▶️ Process Diagram
+
+graph TD
+    %% Stage 1: Initialization
+    Start([Project Launch]) --> Deploy[Contract Deployment]
+    Deploy --> Inject[Admin injects ETH into Token Contract <br/>as Liquidity Reserve]
+    Inject --> Setup[Pond Configuration: <br/>Set Fish Prices and Minting Rights]
+
+    %% Stage 2: Economy
+    Setup --> Economics{Economy Cycle}
+    
+    Economics --> BuyCFT[Buy CFT: <br/>Exchange ETH for CFT Tokens]
+    BuyCFT --> BuyBait[Purchase Bait: <br/>Spend CFT for Corn/Pea/Minnow]
+    
+    %% Stage 3: Core Gameplay
+    BuyBait --> Fishing[Cast Line: <br/>Consume Bait / Random Probability]
+    Fishing --> MintNFT[Auto-Mint Fish NFT <br/>to Player Wallet]
+
+    %% Stage 4: Earnings & Withdrawal
+    MintNFT --> Market[Fish Market: <br/>Sell NFT for CFT Profit]
+    
+    Market --> Exit{Withdrawal}
+    Exit --> UserSell[User Redemption: <br/>Burn CFT for ETH]
+    Exit --> AdminWithdraw[Admin Withdrawal: <br/>Extract Surplus ETH/CFT]
+
+    %% Styles
+    style Start fill:#f9f,stroke:#333
+    style Deploy fill:#dae8fc,stroke:#6c8ebf
+    style Economics fill:#fff2cc,stroke:#d6b653
+    style Fishing fill:#d5e8d4,stroke:#82b366
+    style AdminWithdraw fill:#f8cecc,stroke:#b85450
+
+
 > **⚠️ Disclaimer**: 
 > This project is developed strictly for **educational and personal learning purposes** only. It has **no commercial intent**. 
 > 
