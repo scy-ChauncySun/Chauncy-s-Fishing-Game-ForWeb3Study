@@ -120,33 +120,43 @@ Upon entering the main page, users can perform the following actions:
 
 1. **Set or edit an in-game nickname**
 
-Users can assign themselves a nickname for use within the game and edit it at any time.
+    Users can assign themselves a nickname for use within the game and edit it at any time.
 
 ![Account2](./assets/loadacc2.png)
 
 ![TypingNewNickname](./assets/nicknameTyping.png)
 
-Enter your desired new nickname and click confirm in the authorization interface that pops up in Metamask.
+    Enter your desired new nickname and click confirm in the authorization interface that pops up in Metamask.
 
 ![FinishChangeNickname](./assets/nacknameDone.png)
 
-We have now successfully changed the nickname from the default "Fisherman" to "Peter".
+    We have now successfully changed the nickname from the default "Fisherman" to "Peter".
 
-(Note: The contract owner is restricted from using this feature and can only use the nickname "Administrator".)
+    (Note: The contract owner is restricted from using this feature and can only use the nickname "Administrator".)
 
 ![AdministratorChangingNickname](./assets/adminNickname.png)
 
 2. **Exchange for CFT to start the fishing adventure**
-Users can swap ETH for CFT tokens to obtain the in-game currency required for gameplay.
-<video src="./assets/buyTokens.mp4" width="100%" controls></video>
+    Users can swap ETH for CFT tokens to obtain the in-game currency required for gameplay.
+
+    <video src="./assets/buyTokens.mp4" width="100%" controls></video>
+
 3. **Purchase bait and lures (when eligible)**
-If the user holds a valid amount of CFT, the buttons to purchase bait and fake lures become available.
-Users can buy two types of real bait (Corn & Pea) and one type of Minnow fake lure.
+
+    If the user holds a valid amount of CFT, the buttons to purchase bait and fake lures become available.
+
+    Users can buy two types of real bait (Corn & Pea) and one type of Minnow fake lure.
+
 4. **Cast the line**
-As long as the user holds at least one bait item, they can cast their line to begin fishing.
+
+    As long as the user holds at least one bait item, they can cast their line to begin fishing.
+    
 5. **View Fish Collection**
+
 After successfully catching a fish, users can click the **View Fish Collection** button to browse the CFISH NFTs they own in their wallet.They can choose to **sell** the NFT or keep it for now.
+
 6. **Withdraw via Withdraw Hub**
+
 Users can click the **Withdraw Hub** button to redeem their accumulated CFT tokens for ETH, which will then be sent directly to their connected wallet.
 
 > **⚠️ Disclaimer**: 
