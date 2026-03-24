@@ -3,10 +3,10 @@
 
 *.js linguist-vendored
 *.ts linguist-vendored
-*.jsx linguist-vendored
+
 *.tsx linguist-vendored
 *.json linguist-vendored
 
 
 **/scripts/** linguist-vendored
-**/frontend/** linguist-vendored
+
